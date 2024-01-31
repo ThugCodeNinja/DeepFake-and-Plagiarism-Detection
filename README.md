@@ -11,9 +11,9 @@ This project aims to develop an advanced system for detecting deepfake manipulat
 - **Objective:** Accurately detect deepfake manipulations in multimedia content.
 - **Description:** This module focuses on the development of algorithms and models to analyze various forms of multimedia content, including images, videos, and audio files. The goal is to identify patterns indicative of deepfake manipulations.
 
-### 2. Multi-Modal Analysis
+### 2. Modal Analysis
 
-- **Objective:** Implement a multi-modal analysis approach.
+- **Objective:** Implement a accomodative modal analysis approach.
 - **Description:** This module emphasizes the integration of multiple modalities, such as image, video, and audio analysis. By combining information from different sources, the system enhances its ability to detect sophisticated deepfake manipulations that span across various media types.
 
 ### 3. Real-Time Processing Optimization
