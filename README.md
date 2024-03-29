@@ -30,7 +30,7 @@ This project aims to develop an advanced system for detecting deepfake manipulat
 
 To run this project, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/yourusername/DeepFake-and-Plagiarism-Detection.git`
+1. Clone the repository: `git clone https://github.com/ThugCodeNinja/DeepFake-and-Plagiarism-Detection.git`
 2. Navigate to the project directory: `cd DeepFake-and-Plagiarism-Detection`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Run the application: `python app.py`
