@@ -35,10 +35,6 @@ To run this project, follow these steps:
 3. Install dependencies: `pip install -r requirements.txt`
 4. Run the application: `python app.py`
 
-## Usage
-
-Provide instructions on how to use your application or any specific module. Include examples and guidelines for users to get started.
-
 
 ## License
 
