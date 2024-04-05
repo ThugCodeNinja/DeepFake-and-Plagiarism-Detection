@@ -1,21 +1,22 @@
-from flask import Flask, render_template,request,redirect,url_for,jsonify  
+from flask import Flask, render_template,request,redirect,url_for,jsonify,flash,send_file
 from flask_cors import CORS 
 import sqlite3
 import requests
 import torch
 from torch.nn.functional import softmax
-# from flask_sqlalchemy import SQLAlchemy
+import shap
+import matplotlib.pyplot as plt
 import transformers
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification,pipeline,AutoModel
+from shap.plots._force_matplotlib import draw_additive_plot
 app = Flask(__name__,template_folder='templates', static_folder='static')
-model_dir = "complete"
+app.secret_key = 'password'
+model_dir = "temp"
 tokenizer = AutoTokenizer.from_pretrained(model_dir)
 model = AutoModelForSequenceClassification.from_pretrained(model_dir)
 CORS(app)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///results.db'
-# db = SQLAlchemy(app)
 def init_db():
-    conn = sqlite3.connect('users.db')
+    conn=sqlite3.connect('users.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -34,20 +35,31 @@ init_db()
 # Signup route
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    error=None
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
 
+        if not username:
+            error='Username is required'
+        elif not password:
+            error='Password is required'
+
         # Insert user details into the database
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, email, password))
-        conn.commit()
-        conn.close()
-
+        if error is None:
+            try:
+                conn = sqlite3.connect('users.db')
+                cursor = conn.cursor()
+                cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, email, password))
+                conn.commit()
+                conn.close()
+            except cursor.IntegrityError:
+                error=f"User {username} is already registered."
+        else:
+            return redirect(url_for('login'))
         return redirect(url_for('login'))
-
+    flash(error)
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -81,23 +93,9 @@ def dashboard():
 
 @app.route('/chatgptdetection',methods=['GET','POST'])
 def chatgptdetection():
-    return render_template('chatgpt-detection.html')
-
-@app.route('/processed_text', methods=['POST'])
-def process_text():
-    text = request.form.get('text')
-    inputs = tokenizer(text, return_tensors="pt")
-    with torch.no_grad():
-        logits = model(**inputs).logits
-    probs = softmax(logits, dim=1)
-    max_prob, predicted_class_id = torch.max(probs, dim=1)
-    print("Probabilities:", f"{round(max_prob.item() * 100, 2)}%")
-    print("Predicted Class:", model.config.id2label[predicted_class_id.item()])
-    processed_result = text
-    return render_template('result.html', result=processed_result,probs=round(max_prob.item() * 100, 2),pclass=model.config.id2label[predicted_class_id.item()])
+    return render_template('result.html')
 
 @app.route('/deepfakedetection')
-
 def deepfakedetection():
     return render_template('deepfake-detection.html')
 
